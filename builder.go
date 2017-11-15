@@ -30,14 +30,17 @@ func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	return result
 }
 
+// GetPrefix get current prefix
 func (b *ConfigBuilder) GetPrefix() string {
 	return b.def.prefix
 }
 
+// AddDefault Add a default value
 func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
 	b.def.AddDefault(key, value)
 }
 
+// LoadJson Load a map from a Json Stream
 func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
 
 	jsonBytes, err := ioutil.ReadAll(r)

@@ -38,7 +38,7 @@ func (c *ConfigDefault) GetValue(key string) (interface{}, error) {
 	if !found {
 		// try Env vars
 		name := c.prefix + key
-		// Convert to UpperCase and first replace '.' with '_'
+		// Convert to UpperCase but first replace '.' with '_'
 		name = strings.ToUpper(strings.Replace(name, ".", "_", -1))
 		result, found = os.LookupEnv(name)
 	}
@@ -49,6 +49,7 @@ func (c *ConfigDefault) GetValue(key string) (interface{}, error) {
 	}
 }
 
+// Add a default value
 func (b *ConfigDefault) AddDefault(key string, value interface{}) {
 	if nil == b.def {
 		b.def = make(map[string]interface{})
@@ -57,7 +58,7 @@ func (b *ConfigDefault) AddDefault(key string, value interface{}) {
 }
 
 /*
-  define interface.
+  implements interface.
 */
 type ConfigImpl struct {
 	values map[string]interface{}
@@ -65,6 +66,7 @@ type ConfigImpl struct {
 	def    *ConfigDefault
 }
 
+// Create a config using a subtree of the currents values
 func (c *ConfigImpl) GetConfig(key string, defaultValue interface{}) (*GoConfig, error) {
 	return nil, nil
 }
@@ -97,7 +99,7 @@ func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error)
 
 // sectionA extract a sub part of the map.
 // if create is true an empty map will be created.
-// may return nil if create is false and no map is found
+// may return nil if create is false and no map is found or if the item found is not a map
 func (c *ConfigImpl) sectionA(keys []string, create bool) *map[string]interface{} {
 	vals := c.values
 	for _, k := range keys {
@@ -176,4 +178,4 @@ func (c *ConfigImpl) find(key string) (raw interface{}, exists bool) {
 	return nil, false
 }
 
-// vi:set fileencoding=utf-8 tabstop=4 ai}
+// vi:set fileencoding=utf-8 tabstop=4 ai
