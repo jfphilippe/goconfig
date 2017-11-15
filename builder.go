@@ -19,8 +19,8 @@ type ConfigBuilder struct {
 
 /*
   Instantiate a new builder
-  prefix : prefix for env variable, nil if must be ignored
-  defaults : any defaults values.
+  prefix : prefix for env variable
+  defaults : any defaults values may be nil.
 */
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	prefix = strings.ToUpper(prefix)
