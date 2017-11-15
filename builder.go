@@ -24,7 +24,7 @@ type ConfigBuilder struct {
 */
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	prefix = strings.ToUpper(prefix)
-	def := &ConfigDefault{prefix: prefix, def: defaults}
+	def := &ConfigDefault{prefix: prefix, def: defaults, maxRecursion: 5}
 	result := &ConfigBuilder{def: def}
 
 	return result
@@ -38,6 +38,10 @@ func (b *ConfigBuilder) GetPrefix() string {
 // AddDefault Add a default value
 func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
 	b.def.AddDefault(key, value)
+}
+
+func (b *ConfigBuilder) SetMaxRecursion(max uint) {
+	b.def.SetMaxRecursion(max)
 }
 
 // LoadJson Load a map from a Json Stream

@@ -17,8 +17,19 @@ import (
 )
 
 type ConfigDefault struct {
-	prefix string
-	def    map[string]interface{}
+	prefix       string
+	def          map[string]interface{}
+	maxRecursion uint
+}
+
+// GetMaxRecursion
+func (c *ConfigDefault) GetMaxRecursion() uint {
+	return c.maxRecursion
+}
+
+// SetMaxRecursion set maxRecursion Value
+func (c *ConfigDefault) SetMaxRecursion(max uint) {
+	c.maxRecursion = max
 }
 
 // GetPrefix read the prefix for env var.

@@ -13,14 +13,6 @@ import (
 	"strings"
 )
 
-const (
-	// Max recursive expand
-	MaxRecursion = 5
-)
-
-// ErrMaxRecursion Error returned when max recursion is reached
-var ErrMaxRecursion = errors.New("Max recursion reached :" + strconv.Itoa(MaxRecursion))
-
 // Find matching } of ${ in a string.
 // val is the remaining of the string. i.e : after ${
 // return pos of } in string or -1
@@ -33,8 +25,8 @@ func (c *ConfigImpl) matchEnd(val string) int {
 // expand expand substitutions.
 func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 	// Safe guard against infinite recursion
-	if deep > MaxRecursion {
-		return ErrMaxRecursion
+	if deep >= c.def.maxRecursion {
+		return errors.New("Max recursion reached :" + strconv.FormatUint(uint64(c.def.maxRecursion), 10))
 	}
 	remain := val // remaining of current string.
 
@@ -71,22 +63,23 @@ func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 
 // Expand expand a variable, replace ${var} within value.
 func (c *ConfigImpl) Expand(value string) (string, error) {
-	start := strings.Index(value, "${")
-	if 0 <= start {
-		// May need sustitutions ...
-		// build a buffer with start of string
-		buffer := bytes.NewBufferString(value[:start])
-		buffer.Grow(len(value) * 2)
+	if c.def.maxRecursion > 0 {
+		start := strings.Index(value, "${")
+		if 0 <= start {
+			// May need sustitutions ...
+			// build a buffer with start of string
+			buffer := bytes.NewBufferString(value[:start])
+			buffer.Grow(len(value) * 2)
 
-		err := c.expand(buffer, value[start:], 0)
-		if err != nil {
-			return value, err
+			err := c.expand(buffer, value[start:], 0)
+			if err != nil {
+				return value, err
+			}
+			return buffer.String(), nil
 		}
-		return buffer.String(), nil
-	} else {
-		// Nothing to do
-		return value, nil
 	}
+	// Nothing to do
+	return value, nil
 }
 
 // vi:set fileencoding=utf-8 tabstop=4 ai

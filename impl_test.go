@@ -102,7 +102,7 @@ func TestGetString1(t *testing.T) {
 // Test GetValue from default
 func TestDefault0(t *testing.T) {
 	// Create configDefault with nil default
-	def := &ConfigDefault{prefix: "Ctx_", def: nil}
+	def := &ConfigDefault{prefix: "Ctx_", def: nil, maxRecursion: 5}
 	val, err := def.GetValue("nope")
 
 	if nil == err {
