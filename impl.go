@@ -3,22 +3,22 @@
  Package goconfig read config files.
 */
 
- package goconfig
+package goconfig
 
 import (
 	//"encoding/json"
 	//"io"
 	//"io/ioutil"
 	//"path"
- 	"errors"
- 	"fmt"
- 	"os"
+	"errors"
+	"fmt"
+	"os"
 	"strings"
 )
 
 type ConfigDefault struct {
 	prefix string
-	def map[string]interface{}
+	def    map[string]interface{}
 }
 
 // GetPrefix read the prefix for env var.
@@ -26,11 +26,11 @@ func (c *ConfigDefault) GetPrefix() string {
 	return c.prefix
 }
 
-// GetValue 
+// GetValue
 func (c *ConfigDefault) GetValue(key string) (interface{}, error) {
 	// try first default value
 	result, found := c.def[key]
-	if ! found {
+	if !found {
 		// try Env vars
 		name := c.prefix + strings.ToUpper(strings.Replace(key, ".", "_", -1))
 		result, found = os.LookupEnv(name)
@@ -38,31 +38,30 @@ func (c *ConfigDefault) GetValue(key string) (interface{}, error) {
 	if found {
 		return result, nil
 	} else {
-		return nil, nil
+		return nil, errors.New("Key " + key + " does not exsists in defaults")
 	}
 }
 
 /*
-  define interface.   
- */
+  define interface.
+*/
 type ConfigImpl struct {
 	values map[string]interface{}
 	parent *ConfigImpl
-	def *ConfigDefault
+	def    *ConfigDefault
 }
 
 func (c *ConfigImpl) GetConfig(key string, defaultValue interface{}) (*GoConfig, error) {
 	return nil, nil
 }
 
-
 // Get a String. the key mais be expressed with . to reach a nested item (aka key.sub.sub).
-// If nothing is found and a default value is given, will return the default value. 
+// If nothing is found and a default value is given, will return the default value.
 func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error) {
 	// Get raw value
 	raw, ok := c.get(key)
 	strraw := ""
-	// If not exists, 
+	// If not exists,
 	if !ok {
 		if len(deflt) > 0 {
 			// have a default value
@@ -78,7 +77,8 @@ func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error)
 		// Convert to string
 		strraw = fmt.Sprint(v)
 	}
-	return strraw, nil
+	// Expand value
+	return c.Expand(strraw)
 }
 
 // sectionA extract a sub part of the map.
@@ -88,7 +88,7 @@ func (c *ConfigImpl) sectionA(keys []string, create bool) *map[string]interface{
 	vals := c.values
 	for _, k := range keys {
 		k := strings.TrimSpace(k)
-		if k != "" {  // Ignore empty keys !!
+		if k != "" { // Ignore empty keys !!
 			sub, ok := vals[k]
 			if ok {
 				// Check if can be casted
@@ -127,6 +127,37 @@ func (c *ConfigImpl) get(key string) (raw interface{}, exists bool) {
 		if found {
 			return item, true
 		}
+	}
+	return nil, false
+}
+
+// find return the stored value, search eventualy in parents Config and Default.
+func (c *ConfigImpl) find(key string) (raw interface{}, exists bool) {
+	keys := strings.Split(key, ".")
+	section := keys[:len(keys)-1]
+	name := keys[len(keys)-1]
+	conf := c
+	var entries *map[string]interface{}
+	for conf != nil {
+		entries = conf.sectionA(section, false)
+		if entries != nil {
+			item, found := (*entries)[name]
+			if found {
+				return item, true
+			}
+		}
+		conf = conf.parent
+	}
+	// fail over, search in defaults
+	// first full name
+	item, found := c.def.GetValue(key)
+	if nil != found {
+		return item, true
+	}
+	// then final name only.
+	item, found = c.def.GetValue(name)
+	if nil != found {
+		return item, true
 	}
 	return nil, false
 }

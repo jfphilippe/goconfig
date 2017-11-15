@@ -13,9 +13,6 @@ import (
 	"strings"
 )
 
-
-
-
 type ConfigBuilder struct {
 	def *ConfigDefault
 }
@@ -37,11 +34,11 @@ func (b *ConfigBuilder) GetPrefix() string {
 	return b.def.prefix
 }
 
-func (b *ConfigBuilder) AddDefault(key string, value interface{} ) {
+func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
 	b.def.def[key] = value
 }
 
-func(b *ConfigBuilder) LoadJson( r io.Reader) (GoConfig, error) {
+func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
 
 	jsonBytes, err := ioutil.ReadAll(r)
 	if err != nil {
@@ -54,5 +51,4 @@ func(b *ConfigBuilder) LoadJson( r io.Reader) (GoConfig, error) {
 	return &ConfigImpl{values: obj, parent: nil, def: b.def}, nil
 }
 
-
- // vi:set fileencoding=utf-8 tabstop=4 ai}
+// vi:set fileencoding=utf-8 tabstop=4 ai

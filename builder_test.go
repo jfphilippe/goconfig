@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-
 // test de valeurs globales avec deux sections
 func TestBuilder0(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
@@ -34,6 +33,5 @@ func TestBuilder1(t *testing.T) {
 		t.Error("LoadJson Failed", err)
 	}
 }
-
 
 // vi:set fileencoding=utf-8 tabstop=4 ai

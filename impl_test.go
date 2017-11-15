@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-
 // Check GetString.
 func TestGetString0(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
@@ -83,7 +82,6 @@ func TestGetString1(t *testing.T) {
 		t.Error("Key 'key.sub' found")
 	}
 
-
 	// Missing value with a default value
 	str, serr = config.GetString("nope.sub", "deflt")
 	if "deflt" != str {
@@ -97,6 +95,5 @@ func TestGetString1(t *testing.T) {
 	}
 
 }
-
 
 // vi:set fileencoding=utf-8 tabstop=4 ai
