@@ -35,7 +35,7 @@ func (b *ConfigBuilder) GetPrefix() string {
 }
 
 func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
-	b.def.def[key] = value
+	b.def.AddDefault(key, value)
 }
 
 func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {

@@ -26,20 +26,34 @@ func (c *ConfigDefault) GetPrefix() string {
 	return c.prefix
 }
 
-// GetValue
+// GetValue try to get a value from defaults.
+// search first a value in default map, the into Env vars.
 func (c *ConfigDefault) GetValue(key string) (interface{}, error) {
 	// try first default value
-	result, found := c.def[key]
+	found := false
+	var result interface{}
+	if nil != c.def {
+		result, found = c.def[key]
+	}
 	if !found {
 		// try Env vars
-		name := c.prefix + strings.ToUpper(strings.Replace(key, ".", "_", -1))
+		name := c.prefix + key
+		// Convert to UpperCase and first replace '.' with '_'
+		name = strings.ToUpper(strings.Replace(name, ".", "_", -1))
 		result, found = os.LookupEnv(name)
 	}
-	if found {
+	if found && nil != result {
 		return result, nil
 	} else {
 		return nil, errors.New("Key " + key + " does not exsists in defaults")
 	}
+}
+
+func (b *ConfigDefault) AddDefault(key string, value interface{}) {
+	if nil == b.def {
+		b.def = make(map[string]interface{})
+	}
+	b.def[key] = value
 }
 
 /*
@@ -150,13 +164,13 @@ func (c *ConfigImpl) find(key string) (raw interface{}, exists bool) {
 	}
 	// fail over, search in defaults
 	// first full name
-	item, found := c.def.GetValue(key)
-	if nil != found {
+	item, err := c.def.GetValue(key)
+	if nil == err {
 		return item, true
 	}
 	// then final name only.
-	item, found = c.def.GetValue(name)
-	if nil != found {
+	item, err = c.def.GetValue(name)
+	if nil == err {
 		return item, true
 	}
 	return nil, false

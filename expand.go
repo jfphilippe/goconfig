@@ -50,7 +50,7 @@ func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 			key := strings.TrimSpace(remain[:end])
 			remain = remain[end+1:]
 			subs, exists := c.find(key)
-			if exists {
+			if exists && nil != subs {
 				// Convert found item into string
 				substr := fmt.Sprint(subs)
 				// enventually expand found value.
