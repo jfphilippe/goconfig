@@ -16,6 +16,7 @@ import (
 	"strings"
 )
 
+// Store commons values
 type ConfigDefault struct {
 	prefix       string
 	def          map[string]interface{}
@@ -78,8 +79,13 @@ type ConfigImpl struct {
 }
 
 // Create a config using a subtree of the currents values
-func (c *ConfigImpl) GetConfig(key string, defaultValue interface{}) (*GoConfig, error) {
-	return nil, nil
+func (c *ConfigImpl) GetConfig(key string) (GoConfig, error) {
+	keys := strings.Split(key, ".")
+	values := c.sectionA(keys, false)
+	if nil == values {
+		return nil, errors.New("Key '" + key + "' does not exsists")
+	}
+	return &ConfigImpl{values: *values, parent: c, def: c.def}, nil
 }
 
 // Get a String. the key mais be expressed with . to reach a nested item (aka key.sub.sub).
@@ -90,11 +96,17 @@ func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error)
 	strraw := ""
 	// If not exists,
 	if !ok {
-		if len(deflt) > 0 {
-			// have a default value
-			raw = deflt[0]
+		// search in defaults
+		value, err := c.def.GetValue(key)
+		if nil != err {
+			// If default value provided, use it
+			if len(deflt) > 0 {
+				raw = deflt[0]
+			} else {
+				return "", errors.New("Key '" + key + "' does not exsists")
+			}
 		} else {
-			return "", errors.New("Key '" + key + "' does not exsists")
+			raw = value
 		}
 	}
 	switch v := raw.(type) {
