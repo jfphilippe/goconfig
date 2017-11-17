@@ -102,10 +102,10 @@ func TestGetString1(t *testing.T) {
 // Test GetValue from default
 func TestDefault0(t *testing.T) {
 	// Create configDefault with nil default
-	def := &ConfigDefault{prefix: "Ctx_", def: nil, maxRecursion: 5}
-	val, err := def.GetValue("nope")
+	def := &ConfigDefault{prefix: "Ctx_", values: nil, maxRecursion: 5}
+	val, found := def.GetValue("nope")
 
-	if nil == err {
+	if found {
 		t.Error("Missig key found in Default")
 	}
 	if nil != val {
@@ -115,9 +115,9 @@ func TestDefault0(t *testing.T) {
 	// Test from Env.
 	os.Setenv("CTX_TEST0", "test")
 
-	val, err = def.GetValue("test0")
-	if nil != err {
-		t.Error("key not found in Default", err)
+	val, found = def.GetValue("test0")
+	if !found {
+		t.Error("key not found in Default")
 	}
 	if "test" != val {
 		t.Error("Wrong value found in default", val)
@@ -125,9 +125,9 @@ func TestDefault0(t *testing.T) {
 
 	// Defaults should be prioritary
 	def.AddDefault("test0", "test1")
-	val, err = def.GetValue("test0")
-	if nil != err {
-		t.Error("key not found in Default", err)
+	val, found = def.GetValue("test0")
+	if !found {
+		t.Error("key not found in Default")
 	}
 	if "test1" != val {
 		t.Error("Wrong value found in default", val)
@@ -147,7 +147,7 @@ func TestFind0(t *testing.T) {
 	if err := json.Unmarshal(jsonBytes, &obj); err != nil {
 		t.Error("Unmarshall failed", err)
 	}
-	def := &ConfigDefault{prefix: "Ctx_", def: nil}
+	def := &ConfigDefault{prefix: "Ctx_", values: nil}
 
 	config := ConfigImpl{values: obj, parent: nil, def: def}
 

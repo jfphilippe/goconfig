@@ -7,10 +7,8 @@ package goconfig
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"reflect"
-	"strconv" // Itoa
 	"strings"
 )
 
@@ -27,7 +25,7 @@ func (c *ConfigImpl) matchEnd(val string) int {
 func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 	// Safe guard against infinite recursion
 	if deep >= c.def.maxRecursion {
-		return errors.New("Max recursion reached :" + strconv.FormatUint(uint64(c.def.maxRecursion), 10))
+		return &ExpandRecursionError{step: deep}
 	}
 	remain := val // remaining of current string.
 
@@ -52,7 +50,7 @@ func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 					return err
 				}
 			} else {
-				return errors.New("Missing key '" + key + "'")
+				return &ExpandKeyError{key: key}
 			}
 		} else {
 			buffer.WriteString("${")

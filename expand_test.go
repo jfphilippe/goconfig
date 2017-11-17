@@ -190,7 +190,7 @@ func TestExpand6(t *testing.T) {
 // if full name is not found try "last" name (last part of dot)
 func TestExpand7(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
-	builder.AddDefault("none", "--")
+	builder.AddDefault("test.none", "--")
 	builder.AddDefault("nope.none", "-**-")
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none }\" }}"
 	config, err := builder.LoadJson(strings.NewReader(str))
@@ -202,7 +202,7 @@ func TestExpand7(t *testing.T) {
 	// Search a key as string
 	str, serr := config.GetString("sub.key")
 	if nil != serr {
-		t.Error("Error found for value in defaults", serr)
+		t.Error("Error found", err)
 	}
 	if "--" != str {
 		t.Error("Wrong value found :", str)

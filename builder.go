@@ -24,7 +24,7 @@ type ConfigBuilder struct {
 */
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	prefix = strings.ToUpper(prefix)
-	def := &ConfigDefault{prefix: prefix, def: defaults, maxRecursion: 5}
+	def := &ConfigDefault{prefix: prefix, values: defaults, maxRecursion: 5}
 	result := &ConfigBuilder{def: def}
 
 	return result
