@@ -123,6 +123,7 @@ func (c *ConfigImpl) GetConfig(key string) (GoConfig, error) {
 func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error) {
 	// Get raw value
 	raw, err := c.getExpand(key, deflt...)
+	// If not exists,
 	if nil != raw {
 		// Convert to string....
 		switch v := raw.(type) {
@@ -173,15 +174,9 @@ func (c *ConfigImpl) sectionA(keys []string, create bool) *map[string]interface{
 
 // getExpand return the stored value, or default, and expand if value is a string
 func (c *ConfigImpl) getExpand(key string, deflt ...interface{}) (raw interface{}, err error) {
-	result, found := c.get(key)
+	result, found := c.get(key, deflt...)
 	if !found {
-		if len(deflt) > 0 {
-			result = deflt[0]
-			found = nil != result
-		}
-		if !found {
-			return nil, &MissingKeyError{key: key}
-		}
+		return nil, &MissingKeyError{key: key}
 	}
 
 	switch v := result.(type) {
@@ -194,21 +189,29 @@ func (c *ConfigImpl) getExpand(key string, deflt ...interface{}) (raw interface{
 }
 
 // get return the stored value as-is if exists
-// return the value and 'true' if key was found.
-func (c *ConfigImpl) get(key string) (interface{}, bool) {
+func (c *ConfigImpl) get(key string, deflt ...interface{}) (raw interface{}, exists bool) {
 	keys := strings.Split(key, ".")
 	section := keys[:len(keys)-1]
 	// name is last part
 	name := keys[len(keys)-1]
 	entries := c.sectionA(section, false)
-	if entries != nil {
+	if nil != entries {
 		item, found := (*entries)[name]
 		if found {
 			return item, true
 		}
 	}
-	// Otherwise try defaults
-	return c.def.getValue(keys)
+	// if nothing found try defaults
+	item, found := c.def.GetValue(key)
+	if found {
+		return item, true
+	}
+	// fallback try default param
+	if len(deflt) > 0 {
+		return deflt[0], true
+	}
+	// Nothing found
+	return nil, false
 }
 
 // find return the stored value, search eventualy in parents Config and Default.
