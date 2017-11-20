@@ -118,7 +118,7 @@ func (c *ConfigImpl) GetConfig(key string) (GoConfig, error) {
 	return &ConfigImpl{values: *values, parent: c, def: c.def}, nil
 }
 
-// Get a String. the key mais be expressed with . to reach a nested item (aka key.sub.sub).
+// Get a String. the key may be expressed with . to reach a nested item (aka key.sub.sub).
 // If nothing is found and a default value is given, will return the default value.
 func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error) {
 	// Get raw value
@@ -183,7 +183,7 @@ func (c *ConfigImpl) getExpand(key string, deflt ...interface{}) (raw interface{
 	case string:
 		return c.Expand(v)
 	default:
-		return result, nil
+		return c.Translate(result), nil
 	}
 
 }
