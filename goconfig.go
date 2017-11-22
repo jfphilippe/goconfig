@@ -17,7 +17,7 @@ type GoConfig interface {
 	GetString(key string, deflt ...interface{}) (string, error)
 	//	GetInt64(key string, defaultValue interface{}) (int64, error)
 	//	GetFloat(key string, defaultValue interface{}) (float64, error)
-	//	GetBool(key string, defaultValue interface{}) (bool, error)
+	GetBool(key string, deflt ...interface{}) (bool, error)
 	//	GetDuration(key string, defaultValue interface{}) (Duration, error)
 	//	GetAs(key string, target interface{}) error
 	// Expand expand a value, replace

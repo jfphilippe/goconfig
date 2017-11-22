@@ -99,6 +99,62 @@ func TestGetString1(t *testing.T) {
 
 }
 
+func TestBool00(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	str := "{ \"nope\": true, \"key\":\"false\", \"sub\": { \"key\":\"TRUE\" }}"
+	config, err := builder.LoadJson(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJson Failed", err)
+	}
+
+	// Search a key as string
+	val, serr := config.GetBool("sub.key")
+	if nil != serr {
+		t.Error("Key 'sub.key' not found", serr)
+	}
+	if !val {
+		t.Error("Wrong value found :", val)
+	}
+
+	// getBool, stored a bool
+	val, serr = config.GetBool("nope")
+	if nil != serr {
+		t.Error("Key 'nope' not found", serr)
+	}
+	if !val {
+		t.Error("Wrong value found :", val)
+	}
+
+	// Search a sub key in a non existant sub item
+	val, serr = config.GetBool("key.sub")
+	if nil == serr {
+		t.Error("Key 'key.sub' found")
+	}
+
+	// Missing value with a default value as string
+	val, serr = config.GetBool("nope.sub", "true")
+	if !val {
+		t.Error("Wrong value found :", val)
+	}
+	if nil != serr {
+		t.Error("Error found with default value", serr)
+	}
+
+	// Missing value with a default value as bool
+	val, serr = config.GetBool("nope.sub", true)
+	if !val {
+		t.Error("Wrong value found :", val)
+	}
+
+	// Missing value with a default value
+	val, serr = config.GetBool("sub.nope.key", "false")
+	if val {
+		t.Error("Wrong value found :", val)
+	}
+
+}
+
 // Test GetValue from default
 func TestDefault0(t *testing.T) {
 	// Create configDefault with nil default

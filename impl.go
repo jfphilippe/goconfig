@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -160,6 +161,26 @@ func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error)
 		}
 	}
 	return "", err
+}
+
+func (c *ConfigImpl) GetBool(key string, defaultValue ...interface{}) (bool, error) {
+	// Get raw value
+	raw, err := c.getExpand(key, defaultValue...)
+	// If not exists,
+	if nil != raw {
+		// Convert to string....
+		switch v := raw.(type) {
+		case bool:
+			return v, err
+		case string:
+			return strconv.ParseBool(v)
+		default:
+			// Convert to string
+			strval := fmt.Sprint(v)
+			return strconv.ParseBool(strval)
+		}
+	}
+	return false, err
 }
 
 // subMap extract a sub part of the map.
