@@ -133,6 +133,18 @@ func TestDefault0(t *testing.T) {
 		t.Error("Wrong value found in default", val)
 	}
 
+	found = def.AddDefault("sub.test", "somevalue")
+	if !found {
+		t.Error("Could not add default value")
+	}
+	val, found = def.GetValue("sub.test")
+	if !found {
+		t.Error("key not found in Default")
+	}
+	if "somevalue" != val {
+		t.Error("Wrong value found in default", val)
+	}
+
 }
 
 // Check GetString. for nested string
