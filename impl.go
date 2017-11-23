@@ -218,6 +218,28 @@ func subMap(values *map[string]interface{}, keys []string, create bool) *map[str
 	return &vals
 }
 
+// mergeMap merge two maps. Copy all entries from the first to the second if
+func mergeMap(src, dest map[string]interface{}) {
+	// iterate over all key, values from src
+	for k, v := range src {
+		// search in dest value for same key
+		v2, found := dest[k]
+		if !found {
+			// not found : set it
+			dest[k] = v
+		} else {
+			// if v AND v2 are map[string]interface merge recursively
+			switch tsrc := v.(type) {
+			case map[string]interface{}:
+				switch tdest := v2.(type) {
+				case map[string]interface{}:
+					mergeMap(tsrc, tdest)
+				}
+			}
+		}
+	}
+}
+
 // getExpand return the stored value, or default, and expand if value is a string
 func (c *ConfigImpl) getExpand(key string, deflt ...interface{}) (raw interface{}, err error) {
 	result, found := c.get(key, deflt...)

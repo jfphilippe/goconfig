@@ -21,6 +21,10 @@ type GoConfig interface {
 	//	GetDuration(key string, defaultValue interface{}) (Duration, error)
 	//	GetAs(key string, target interface{}) error
 	// Expand expand a value, replace
+	// GetString(key, deflt string) string
+	// GetString(key string) (string, error)
+	// GetBool(key string, deflt bool) bool
+	// GetBool(key string) (bool, error)
 	Expand(value string) (string, error)
 }
 

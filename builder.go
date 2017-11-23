@@ -6,15 +6,18 @@
 package goconfig
 
 import (
+	"bufio"
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"os"
 	//"path"
 	"strings"
 )
 
 type ConfigBuilder struct {
-	def *ConfigDefault
+	def  *ConfigDefault
+	conf *ConfigImpl
 }
 
 /*
@@ -25,7 +28,7 @@ type ConfigBuilder struct {
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	prefix = strings.ToUpper(prefix)
 	def := &ConfigDefault{prefix: prefix, values: defaults, maxRecursion: 5}
-	result := &ConfigBuilder{def: def}
+	result := &ConfigBuilder{def: def, conf: nil}
 
 	return result
 }
@@ -45,6 +48,7 @@ func (b *ConfigBuilder) SetMaxRecursion(max uint) {
 }
 
 // LoadJson Load a map from a Json Stream
+// merge loaded value with previous one.
 func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
 
 	jsonBytes, err := ioutil.ReadAll(r)
@@ -55,7 +59,33 @@ func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
 	if err := json.Unmarshal(jsonBytes, &obj); err != nil {
 		return nil, err
 	}
-	return &ConfigImpl{values: obj, parent: nil, def: b.def}, nil
+	if nil == b.conf {
+		b.conf = &ConfigImpl{values: obj, parent: nil, def: b.def}
+	} else {
+		mergeMap(obj, b.conf.values)
+	}
+	return b.conf, nil
+}
+
+// LoadJsonFile load from a file
+func (b *ConfigBuilder) LoadJsonFile(filename string) (GoConfig, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	r := bufio.NewReader(f)
+	return b.LoadJson(r)
+}
+
+func (b *ConfigBuilder) LoadJsonFiles(ignoremissing bool, filenames ...string) (GoConfig, error) {
+	for _, filename := range filenames {
+		_, err := b.LoadJsonFile(filename)
+		if nil != err && !(ignoremissing && os.IsNotExist(err)) {
+			return nil, err
+		}
+	}
+	return b.conf, nil
 }
 
 // vi:set fileencoding=utf-8 tabstop=4 ai
