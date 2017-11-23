@@ -29,6 +29,17 @@ type GoConfig interface {
 }
 
 // Error for missing Key
+type ParseError struct {
+	line int
+	msg  string
+}
+
+// Error interface implementation
+func (m ParseError) Error() string {
+	return fmt.Sprintf("Parse Error line '%d' : '%s'", m.line, m.msg)
+}
+
+// Error for missing Key
 type MissingKeyError struct {
 	key string
 }

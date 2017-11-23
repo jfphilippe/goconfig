@@ -47,7 +47,7 @@ func TestBuilder2(t *testing.T) {
 	config, err2 := builder.LoadJson(strings.NewReader(str2))
 
 	if nil != err2 {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJson Failed", err2)
 	}
 
 	// New key should not overide existing one
@@ -92,7 +92,62 @@ func TestBuilder3(t *testing.T) {
 	config, err2 := builder.LoadJson(strings.NewReader(str2))
 
 	if nil != err2 {
+		t.Error("LoadJson Failed", err2)
+	}
+
+	// New key should not overide existing one
+	val, serr := config.GetBool("sub.bool")
+	if nil != serr {
+		t.Error("Key 'sub.bool' not found", serr)
+	}
+	if val {
+		t.Error("Wrong value found :", val)
+	}
+
+	// New key in sub map
+	str, serr = config.GetString("sub.string")
+	if nil != serr {
+		t.Error("Key 'sub.string' not found", serr)
+	}
+	if "test" != str {
+		t.Error("Wrong value found :", str)
+	}
+
+}
+
+// Check Json parsing and Txt parsing
+// multiple parsing with sub-maps
+func TestBuilder4(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	str := "{ \"nope\": true, \"key\":\"value\",  \"sub\": { \"bool\": false }}"
+	str2 := "# test \nnope = false \nkey2=value2 \t \nsub.string = test \n\n"
+	_, err := builder.LoadJson(strings.NewReader(str))
+
+	if nil != err {
 		t.Error("LoadJson Failed", err)
+	}
+	config, serr := builder.LoadTxt(strings.NewReader(str2))
+
+	if nil != serr {
+		t.Error("LoadTxt Failed", serr)
+	}
+
+	// previous key should still exists
+	str, serr = config.GetString("key")
+	if nil != serr {
+		t.Error("Key 'key' not found", serr)
+	}
+	if "value" != str {
+		t.Error("Wrong value found :", str)
+	}
+
+	// previous key should still exists
+	str, serr = config.GetString("key2")
+	if nil != serr {
+		t.Error("Key 'key2' not found", serr)
+	}
+	if "value2" != str {
+		t.Error("Wrong value found :", str)
 	}
 
 	// New key should not overide existing one

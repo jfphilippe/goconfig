@@ -46,7 +46,7 @@ func (c *ConfigDefault) getValue(keys []string) (interface{}, bool) {
 	vals := c.values
 	section := keys[:len(keys)-1]
 	// name is last part
-	name := keys[len(keys)-1]
+	name := strings.TrimSpace(keys[len(keys)-1])
 	// Search for the required section
 	for _, k := range section {
 		k := strings.TrimSpace(k)
@@ -142,6 +142,36 @@ func (c *ConfigImpl) GetConfig(key string) (GoConfig, error) {
 		return nil, errors.New("Key '" + key + "' does not exsists")
 	}
 	return &ConfigImpl{values: *values, parent: c, def: c.def}, nil
+}
+
+func (c *ConfigImpl) SetValue(key string, value interface{}) bool {
+	if nil != value {
+		keys := strings.Split(key, ".")
+		section := keys[:len(keys)-1]
+		// name is last part
+		name := strings.TrimSpace(keys[len(keys)-1])
+		entries := subMap(&c.values, section, true)
+		if nil != entries {
+			// Do Not override an existing entry
+			item, found := (*entries)[name]
+			if found {
+				// if value AND item are map[string]interface merge recursively
+				// otherwise do nothing
+				switch tsrc := value.(type) {
+				case map[string]interface{}:
+					switch tdest := item.(type) {
+					case map[string]interface{}:
+						mergeMap(tsrc, tdest)
+						return true
+					}
+				}
+			} else {
+				(*entries)[name] = value
+				return true
+			}
+		} // entries should always be not nil
+	}
+	return false
 }
 
 // Get a String. the key may be expressed with . to reach a nested item (aka key.sub.sub).

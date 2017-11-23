@@ -69,6 +69,37 @@ func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
 	return b.conf, nil
 }
 
+// LoadTxt Load a map from a text Stream
+// merge loaded value with previous one.
+func (b *ConfigBuilder) LoadTxt(r io.Reader) (GoConfig, error) {
+
+	scanner := bufio.NewScanner(r)
+	lineNb := 0
+	obj := make(map[string]interface{})
+	conf := &ConfigImpl{values: obj, parent: nil, def: b.conf.def}
+	for scanner.Scan() {
+		lineNb++
+		line := strings.TrimSpace(scanner.Text())
+		// ignore empty lines and comments
+		if "" != line && !strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "//") {
+			// Parse key=value
+			words := strings.SplitN(line, "=", 2)
+			if len(words) != 2 {
+				return b.conf, &ParseError{line: lineNb, msg: "missing '=' : '" + line + "'"}
+			}
+			key := strings.TrimSpace(words[0])
+			value := strings.TrimSpace(words[1])
+			// Set Value in a spare config
+			conf.SetValue(key, value)
+		}
+
+	}
+	// Merge new config and current one.
+	mergeMap(conf.values, b.conf.values)
+
+	return b.conf, nil
+}
+
 // LoadJsonFile load from a file
 func (b *ConfigBuilder) LoadJsonFile(filename string) (GoConfig, error) {
 	f, err := os.Open(filename)
