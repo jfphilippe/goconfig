@@ -15,6 +15,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Store commons values
@@ -211,6 +212,27 @@ func (c *ConfigImpl) GetBool(key string, defaultValue ...interface{}) (bool, err
 		}
 	}
 	return false, err
+}
+
+// GetDuration read a Duration from configuration.
+func (c *ConfigImpl) GetDuration(key string, defaultValue ...interface{}) (time.Duration, error) {
+	// Get raw value
+	raw, err := c.getExpand(key, defaultValue...)
+	// If not exists,
+	if nil != raw {
+		// Convert to string....
+		switch v := raw.(type) {
+		case time.Duration:
+			return v, err
+		case string:
+			return time.ParseDuration(v)
+		default:
+			// Convert to string
+			strval := fmt.Sprint(v)
+			return time.ParseDuration(strval)
+		}
+	}
+	return 0 * time.Second, err
 }
 
 // subMap extract a sub part of the map.

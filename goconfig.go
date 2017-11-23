@@ -7,6 +7,7 @@ package goconfig
 
 import (
 	"fmt"
+	"time"
 )
 
 /*
@@ -18,7 +19,7 @@ type GoConfig interface {
 	//	GetInt64(key string, defaultValue interface{}) (int64, error)
 	//	GetFloat(key string, defaultValue interface{}) (float64, error)
 	GetBool(key string, deflt ...interface{}) (bool, error)
-	//	GetDuration(key string, defaultValue interface{}) (Duration, error)
+	GetDuration(key string, deflt ...interface{}) (time.Duration, error)
 	//	GetAs(key string, target interface{}) error
 	// Expand expand a value, replace
 	// GetString(key, deflt string) string
