@@ -1,6 +1,6 @@
 /*
- Copyright (c) 2017 Jean-François PHILIPPE
- Package goconfig read config files.
+Copyright (c) 2017 Jean-François PHILIPPE
+Package goconfig read config files.
 */
 
 package goconfig
@@ -127,7 +127,7 @@ func (b *ConfigDefault) AddDefault(key string, value interface{}) bool {
 }
 
 /*
-  implements interface.
+implements interface.
 */
 type ConfigImpl struct {
 	values map[string]interface{}
@@ -233,6 +233,130 @@ func (c *ConfigImpl) GetDuration(key string, defaultValue ...interface{}) (time.
 		}
 	}
 	return 0 * time.Second, err
+}
+
+// GetDuration read a Duration from configuration.
+func (c *ConfigImpl) GetInt(key string, defaultValue ...interface{}) (int64, error) {
+	// Get raw value
+	raw, err := c.getExpand(key, defaultValue...)
+	// If not exists,
+	if nil != raw {
+		switch val := raw.(type) {
+		case int:
+			return int64(val), nil
+		case uint:
+			return int64(val), nil
+		case int8:
+			return int64(val), nil
+		case uint8:
+			return int64(val), nil
+		case int16:
+			return int64(val), nil
+		case uint16:
+			return int64(val), nil
+		case int32:
+			return int64(val), nil
+		case uint32:
+			return int64(val), nil
+		case int64:
+			return int64(val), nil
+		case uint64:
+			return int64(val), nil
+		case float32:
+			return int64(val), nil
+		case float64:
+			return int64(val), nil
+		case string:
+			return strconv.ParseInt(val, 0, 64)
+		default:
+			// Convert to string
+			strval := fmt.Sprint(val)
+			return strconv.ParseInt(strval, 0, 64)
+		}
+	}
+	return 0, err
+}
+
+// GetDuration read a Duration from configuration.
+func (c *ConfigImpl) GetUint(key string, defaultValue ...interface{}) (uint64, error) {
+	// Get raw value
+	raw, err := c.getExpand(key, defaultValue...)
+	// If not exists,
+	if nil != raw {
+		switch val := raw.(type) {
+		case int:
+			return uint64(val), nil
+		case uint:
+			return uint64(val), nil
+		case int8:
+			return uint64(val), nil
+		case uint8:
+			return uint64(val), nil
+		case int16:
+			return uint64(val), nil
+		case uint16:
+			return uint64(val), nil
+		case int32:
+			return uint64(val), nil
+		case uint32:
+			return uint64(val), nil
+		case int64:
+			return uint64(val), nil
+		case uint64:
+			return uint64(val), nil
+		case float32:
+			return uint64(val), nil
+		case float64:
+			return uint64(val), nil
+		case string:
+			return strconv.ParseUint(val, 0, 64)
+		default:
+			// Convert to string
+			strval := fmt.Sprint(val)
+			return strconv.ParseUint(strval, 0, 64)
+		}
+	}
+	return 0, err
+}
+
+// GetDuration read a Duration from configuration.
+func (c *ConfigImpl) GetFloat(key string, defaultValue ...interface{}) (float64, error) {
+	// Get raw value
+	raw, err := c.getExpand(key, defaultValue...)
+	// If not exists,
+	if nil != raw {
+		switch val := raw.(type) {
+		case int:
+			return float64(val), nil
+		case uint:
+			return float64(val), nil
+		case int8:
+			return float64(val), nil
+		case uint8:
+			return float64(val), nil
+		case int16:
+			return float64(val), nil
+		case uint16:
+			return float64(val), nil
+		case int32:
+			return float64(val), nil
+		case uint32:
+			return float64(val), nil
+		case int64:
+			return float64(val), nil
+		case float32:
+			return float64(val), nil
+		case float64:
+			return float64(val), nil
+		case string:
+			return strconv.ParseFloat(val, 64)
+		default:
+			// Convert to string
+			strval := fmt.Sprint(val)
+			return strconv.ParseFloat(strval, 64)
+		}
+	}
+	return 0.0, err
 }
 
 // subMap extract a sub part of the map.

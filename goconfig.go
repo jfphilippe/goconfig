@@ -16,16 +16,13 @@ import (
 type GoConfig interface {
 	GetConfig(key string) (GoConfig, error)
 	GetString(key string, deflt ...interface{}) (string, error)
-	//	GetInt64(key string, defaultValue interface{}) (int64, error)
-	//	GetFloat(key string, defaultValue interface{}) (float64, error)
+	GetInt(key string, defaultValue ...interface{}) (int64, error)
+	GetUint(key string, defaultValue ...interface{}) (uint64, error)
+	GetFloat(key string, defaultValue ...interface{}) (float64, error)
 	GetBool(key string, deflt ...interface{}) (bool, error)
 	GetDuration(key string, deflt ...interface{}) (time.Duration, error)
-	//	GetAs(key string, target interface{}) error
-	// Expand expand a value, replace
 	// GetString(key, deflt string) string
-	// GetString(key string) (string, error)
 	// GetBool(key string, deflt bool) bool
-	// GetBool(key string) (bool, error)
 	Expand(value string) (string, error)
 }
 
