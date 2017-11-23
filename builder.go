@@ -16,7 +16,6 @@ import (
 )
 
 type ConfigBuilder struct {
-	def  *ConfigDefault
 	conf *ConfigImpl
 }
 
@@ -27,24 +26,31 @@ type ConfigBuilder struct {
 */
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	prefix = strings.ToUpper(prefix)
+	obj := make(map[string]interface{})
 	def := &ConfigDefault{prefix: prefix, values: defaults, maxRecursion: 5}
-	result := &ConfigBuilder{def: def, conf: nil}
+	conf := &ConfigImpl{values: obj, parent: nil, def: def}
+	result := &ConfigBuilder{conf: conf}
 
 	return result
 }
 
+// GetConfig return current config
+func (b *ConfigBuilder) GetConfig() GoConfig {
+	return b.conf
+}
+
 // GetPrefix get current prefix
 func (b *ConfigBuilder) GetPrefix() string {
-	return b.def.prefix
+	return b.conf.def.prefix
 }
 
 // AddDefault Add a default value
 func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
-	b.def.AddDefault(key, value)
+	b.conf.def.AddDefault(key, value)
 }
 
 func (b *ConfigBuilder) SetMaxRecursion(max uint) {
-	b.def.SetMaxRecursion(max)
+	b.conf.def.SetMaxRecursion(max)
 }
 
 // LoadJson Load a map from a Json Stream
@@ -59,11 +65,7 @@ func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
 	if err := json.Unmarshal(jsonBytes, &obj); err != nil {
 		return nil, err
 	}
-	if nil == b.conf {
-		b.conf = &ConfigImpl{values: obj, parent: nil, def: b.def}
-	} else {
-		mergeMap(obj, b.conf.values)
-	}
+	mergeMap(obj, b.conf.values)
 	return b.conf, nil
 }
 
