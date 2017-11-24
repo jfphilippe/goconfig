@@ -1,6 +1,6 @@
 /*
- Copyright (c) 2017 Jean-François PHILIPPE
- Package goconfig read config files.
+Copyright (c) 2017 Jean-François PHILIPPE
+Package goconfig read config files.
 */
 
 package goconfig
@@ -18,11 +18,35 @@ import (
 func (c *ConfigImpl) matchEnd(val string) int {
 	// For now first } found
 	// Later may handle ${xx${yy}zz} (nested items)
-	return strings.Index(val, "}")
+	var level uint
+	level = 0
+	var dfound bool
+	dfound = false
+	for pos, rune := range val {
+		if '$' == rune {
+			dfound = true
+		} else {
+			if '{' == rune {
+				if dfound {
+					// another ${ found
+					level++
+				}
+			} else if '}' == rune {
+				if 0 == level {
+					// match found !!
+					return pos
+				} else {
+					level--
+				}
+			}
+			dfound = false
+		}
+	}
+	return -1
 }
 
 // expand expand substitutions.
-func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
+func (c *ConfigImpl) expandBuffer(buffer *bytes.Buffer, val string, deep uint) error {
 	// Safe guard against infinite recursion
 	if deep >= c.def.maxRecursion {
 		return &ExpandRecursionError{step: deep}
@@ -37,15 +61,19 @@ func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 		buffer.WriteString(remain[:start])
 		remain = remain[start+2:]
 		end = c.matchEnd(remain)
-		if end >= 0 {
-			key := strings.TrimSpace(remain[:end])
+		if end >= 0 { // extract key
+			key, err := c.expand(strings.TrimSpace(remain[:end]), deep+1)
+			if err != nil {
+				return err
+			}
+			key = strings.TrimSpace(key)
 			remain = remain[end+1:]
 			subs, exists := c.find(key)
 			if exists && nil != subs {
 				// Convert found item into string
 				substr := fmt.Sprint(subs)
 				// enventually expand found value.
-				err := c.expand(buffer, substr, deep+1)
+				err = c.expandBuffer(buffer, substr, deep+1)
 				if err != nil {
 					return err
 				}
@@ -61,24 +89,38 @@ func (c *ConfigImpl) expand(buffer *bytes.Buffer, val string, deep uint) error {
 }
 
 // Expand expand a variable, replace ${var} within value.
-func (c *ConfigImpl) Expand(value string) (string, error) {
-	if c.def.maxRecursion > 0 {
-		start := strings.Index(value, "${")
-		if 0 <= start {
-			// May need sustitutions ...
-			// build a buffer with start of string
-			buffer := bytes.NewBufferString(value[:start])
-			buffer.Grow(len(value) * 2)
+func (c *ConfigImpl) expand(value string, deep uint) (string, error) {
+	// if no recursion allowed return value.
+	if 0 == c.def.maxRecursion {
+		return value, nil
+	}
+	if deep >= c.def.maxRecursion {
+		return value, &ExpandRecursionError{step: deep}
+	}
+	start := strings.Index(value, "${")
+	if 0 <= start {
+		// May need sustitutions ...
+		// build a buffer with start of string
+		buffer := bytes.NewBufferString(value[:start])
+		buffer.Grow(len(value) * 2)
 
-			err := c.expand(buffer, value[start:], 0)
-			if err != nil {
-				return value, err
-			}
-			return buffer.String(), nil
+		err := c.expandBuffer(buffer, value[start:], deep)
+		if err != nil {
+			return value, err
 		}
+		return buffer.String(), nil
 	}
 	// Nothing to do
 	return value, nil
+}
+
+// Expand expand a variable, replace ${var} within value.
+func (c *ConfigImpl) Expand(value string) (string, error) {
+	if 0 == c.def.maxRecursion {
+		return value, nil
+	} else {
+		return c.expand(value, 0)
+	}
 }
 
 // from https://gist.github.com/hvoecking/10772475  :
@@ -127,10 +169,10 @@ func (c *ConfigImpl) translateRecursive(copy, original reflect.Value) {
 		// Unwrap the newly created pointer
 		c.translateRecursive(copy.Elem(), originalValue)
 
-	// If it is an interface (which is very similar to a pointer), do basically the
-	// same as for the pointer. Though a pointer is not the same as an interface so
-	// note that we have to call Elem() after creating a new object because otherwise
-	// we would end up with an actual pointer
+		// If it is an interface (which is very similar to a pointer), do basically the
+		// same as for the pointer. Though a pointer is not the same as an interface so
+		// note that we have to call Elem() after creating a new object because otherwise
+		// we would end up with an actual pointer
 	case reflect.Interface:
 		// Get rid of the wrapping interface
 		originalValue := original.Elem()
@@ -140,20 +182,20 @@ func (c *ConfigImpl) translateRecursive(copy, original reflect.Value) {
 		c.translateRecursive(copyValue, originalValue)
 		copy.Set(copyValue)
 
-	// If it is a struct we translate each field
+		// If it is a struct we translate each field
 	case reflect.Struct:
 		for i := 0; i < original.NumField(); i += 1 {
 			c.translateRecursive(copy.Field(i), original.Field(i))
 		}
 
-	// If it is a slice we create a new slice and translate each element
+		// If it is a slice we create a new slice and translate each element
 	case reflect.Slice:
 		copy.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
 		for i := 0; i < original.Len(); i += 1 {
 			c.translateRecursive(copy.Index(i), original.Index(i))
 		}
 
-	// If it is a map we create a new map and translate each value
+		// If it is a map we create a new map and translate each value
 	case reflect.Map:
 		copy.Set(reflect.MakeMap(original.Type()))
 		for _, key := range original.MapKeys() {
@@ -164,14 +206,14 @@ func (c *ConfigImpl) translateRecursive(copy, original reflect.Value) {
 			copy.SetMapIndex(key, copyValue)
 		}
 
-	// Otherwise we cannot traverse anywhere so this finishes the the recursion
+		// Otherwise we cannot traverse anywhere so this finishes the the recursion
 
-	// If it is a string translate it (yay finally we're doing what we came for)
+		// If it is a string translate it (yay finally we're doing what we came for)
 	case reflect.String:
 		translatedString, _ := c.Expand(original.Interface().(string))
 		copy.SetString(translatedString)
 
-	// And everything else will simply be taken from the original
+		// And everything else will simply be taken from the original
 	default:
 		copy.Set(original)
 	}

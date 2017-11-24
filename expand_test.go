@@ -210,4 +210,72 @@ func TestExpand7(t *testing.T) {
 
 }
 
+
+// Check recursive expand, with  doted key, full name is prioritary
+func TestExpand8(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.AddDefault("test.none", "${key}")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none }\" }}"
+	config, err := builder.LoadJson(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJson Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("sub.key")
+	if nil != serr {
+		t.Error("Error found", err)
+	}
+	if "value" != str {
+		t.Error("Wrong value found :", str)
+	}
+
+}
+
+// Check recursive expand, with  doted key, full name is prioritary
+func TestExpand9(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.AddDefault("idx", "1")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"nope\": true, \"key1\":\"value\", \"sub\": { \"key\":\"${ key${idx} }\" }}"
+	config, err := builder.LoadJson(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJson Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("sub.key")
+	if nil != serr {
+		t.Error("Error found", err)
+	}
+	if "value" != str {
+		t.Error("Wrong value found :", str)
+	}
+}
+
+// Check recursive expand, with  doted key, full name is prioritary
+func TestExpand10(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.AddDefault("idx", "key")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ ${idx} }\" }}"
+	config, err := builder.LoadJson(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJson Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("sub.key")
+	if nil != serr {
+		t.Error("Error found", err)
+	}
+	if "value" != str {
+		t.Error("Wrong value found :", str)
+	}
+}
+
 // vi:set fileencoding=utf-8 tabstop=4 ai
