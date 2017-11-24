@@ -235,7 +235,7 @@ func (c *ConfigImpl) GetDuration(key string, defaultValue ...interface{}) (time.
 	return 0 * time.Second, err
 }
 
-// GetDuration read a Duration from configuration.
+// GetInt read an Int from configuration.
 func (c *ConfigImpl) GetInt(key string, defaultValue ...interface{}) (int64, error) {
 	// Get raw value
 	raw, err := c.getExpand(key, defaultValue...)
@@ -277,7 +277,7 @@ func (c *ConfigImpl) GetInt(key string, defaultValue ...interface{}) (int64, err
 	return 0, err
 }
 
-// GetDuration read a Duration from configuration.
+// GetUint read an uint from configuration.
 func (c *ConfigImpl) GetUint(key string, defaultValue ...interface{}) (uint64, error) {
 	// Get raw value
 	raw, err := c.getExpand(key, defaultValue...)
@@ -319,7 +319,7 @@ func (c *ConfigImpl) GetUint(key string, defaultValue ...interface{}) (uint64, e
 	return 0, err
 }
 
-// GetDuration read a Duration from configuration.
+// GetFloat read a float from configuration.
 func (c *ConfigImpl) GetFloat(key string, defaultValue ...interface{}) (float64, error) {
 	// Get raw value
 	raw, err := c.getExpand(key, defaultValue...)
