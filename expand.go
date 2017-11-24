@@ -16,31 +16,20 @@ import (
 // val is the remaining of the string. i.e : after ${
 // return pos of } in string or -1
 func (c *ConfigImpl) matchEnd(val string) int {
-	// For now first } found
-	// Later may handle ${xx${yy}zz} (nested items)
-	var level uint
-	level = 0
-	var dfound bool
-	dfound = false
+	level := 1
+	dfound := false
 	for pos, rune := range val {
-		if '$' == rune {
-			dfound = true
-		} else {
-			if '{' == rune {
-				if dfound {
-					// another ${ found
-					level++
-				}
-			} else if '}' == rune {
-				if 0 == level {
-					// match found !!
-					return pos
-				} else {
-					level--
-				}
+		if '{' == rune && dfound {
+			// another ${ found
+			level++
+		} else if '}' == rune {
+			level--
+			if 0 == level {
+				// match found !!
+				return pos
 			}
-			dfound = false
 		}
+		dfound = '$' == rune
 	}
 	return -1
 }
