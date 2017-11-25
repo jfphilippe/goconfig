@@ -1,6 +1,6 @@
 /*
- Copyright (c) 2017 Jean-François PHILIPPE
- Package goconfig read config files.
+Copyright (c) 2017 Jean-François PHILIPPE
+Package goconfig read config files.
 */
 
 package goconfig
@@ -11,7 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	//"path"
+	"path"
 	"strings"
 )
 
@@ -130,6 +130,36 @@ func (b *ConfigBuilder) LoadJsonFiles(ignoremissing bool, filenames ...string) (
 		_, err := b.LoadJsonFile(filename)
 		if nil != err && !(ignoremissing && os.IsNotExist(err)) {
 			return nil, err
+		}
+	}
+	return b.conf, nil
+}
+
+// LoadFiles load from files. Guess file type by reading extension.
+// When extension is .json parse it as a json file,
+// otherwise as a txt file
+func (b *ConfigBuilder) LoadFiles(ignoremissing bool, filenames ...string) (GoConfig, error) {
+	parser := b.LoadTxt
+	for _, filename := range filenames {
+		f, err := os.Open(filename)
+		if nil != err {
+			if !(ignoremissing && os.IsNotExist(err)) {
+				return nil, err
+			}
+		} else {
+			// Choose a parser
+			if ".json" == path.Ext(filename) {
+				parser = b.LoadJson
+			} else {
+				parser = b.LoadTxt
+			}
+			r := bufio.NewReader(f)
+
+			_, err = parser(r)
+			f.Close()
+			if nil != err {
+				return nil, err
+			}
 		}
 	}
 	return b.conf, nil

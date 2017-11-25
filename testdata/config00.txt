@@ -1,0 +1,9 @@
+# test file config00
+
+# some sensitive datas
+
+int.db.pwd = integration
+dev.db.pwd = development
+
+# Others
+max_proc = 4

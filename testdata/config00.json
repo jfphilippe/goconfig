@@ -1,0 +1,13 @@
+{
+"_": "config00.json test file",
+"database": {
+    "user": "john",
+    "pwd" : "${${env}.db.pwd}",
+    "url" : "localhost:1234/mydb"
+ },
+"intl": {
+    "locale": "en",
+    "timezone": "Europe/Paris"
+},
+"timeout": "5s"
+}

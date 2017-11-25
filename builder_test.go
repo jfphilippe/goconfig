@@ -1,11 +1,12 @@
 /*
- Copyright (c) 2017 Jean-François PHILIPPE
- Package goconfig read config files.
+Copyright (c) 2017 Jean-François PHILIPPE
+Package goconfig read config files.
 */
 
 package goconfig
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -168,6 +169,25 @@ func TestBuilder4(t *testing.T) {
 		t.Error("Wrong value found :", str)
 	}
 
+}
+
+// Check Json parsing.
+func TestBuilder5(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(5)
+	os.Setenv("CTX_ENV", "dev")
+	config, err := builder.LoadFiles(false, "testdata/config00.json", "testdata/config00.txt")
+
+	if nil != err {
+		t.Error("LoadJson Failed", err)
+	}
+	str, serr := config.GetString("database.pwd")
+	if nil != serr {
+		t.Error("Key 'database.pwd' not found", serr)
+	}
+	if "development" != str {
+		t.Error("Wrong value found :", str)
+	}
 }
 
 // vi:set fileencoding=utf-8 tabstop=4 ai
