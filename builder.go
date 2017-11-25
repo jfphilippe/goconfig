@@ -15,15 +15,14 @@ import (
 	"strings"
 )
 
+// Used to create Config Objects and parse config files.
 type ConfigBuilder struct {
 	conf *ConfigImpl
 }
 
-/*
-  Instantiate a new builder
-  prefix : prefix for env variable
-  defaults : any defaults values may be nil.
-*/
+//  Instantiate a new builder
+//  prefix : prefix for env variable
+//  defaults : any defaults values may be nil.
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	prefix = strings.ToUpper(prefix)
 	obj := make(map[string]interface{})
@@ -49,6 +48,9 @@ func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
 	b.conf.def.AddDefault(key, value)
 }
 
+// SetMaxRecursion configure max expand recursion.
+// once the limit reached an error will be returned
+// set to 0 to disable expansion.
 func (b *ConfigBuilder) SetMaxRecursion(max uint) {
 	b.conf.def.SetMaxRecursion(max)
 }
@@ -111,6 +113,18 @@ func (b *ConfigBuilder) LoadJsonFile(filename string) (GoConfig, error) {
 	return b.LoadJson(r)
 }
 
+// LoadTxtFile load from a file
+func (b *ConfigBuilder) LoadTxtFile(filename string) (GoConfig, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	r := bufio.NewReader(f)
+	return b.LoadTxt(r)
+}
+
+// LoadJsonFiles load a list of files
 func (b *ConfigBuilder) LoadJsonFiles(ignoremissing bool, filenames ...string) (GoConfig, error) {
 	for _, filename := range filenames {
 		_, err := b.LoadJsonFile(filename)

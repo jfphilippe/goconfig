@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// Find matching } of ${ in a string.
+// matchEnd Find matching } of ${ in a string.
 // val is the remaining of the string. i.e : after ${
 // return pos of } in string or -1
 func (c *ConfigImpl) matchEnd(val string) int {
@@ -34,7 +34,7 @@ func (c *ConfigImpl) matchEnd(val string) int {
 	return -1
 }
 
-// expand expand substitutions.
+// expandBuffer expand substitutions.
 func (c *ConfigImpl) expandBuffer(buffer *bytes.Buffer, val string, deep uint) error {
 	// Safe guard against infinite recursion
 	if deep >= c.def.maxRecursion {
@@ -50,11 +50,13 @@ func (c *ConfigImpl) expandBuffer(buffer *bytes.Buffer, val string, deep uint) e
 		buffer.WriteString(remain[:start])
 		remain = remain[start+2:]
 		end = c.matchEnd(remain)
-		if end >= 0 { // extract key
+		if end >= 0 {
+			// extract key, and expand it if needed
 			key, err := c.expand(strings.TrimSpace(remain[:end]), deep+1)
 			if err != nil {
 				return err
 			}
+			// Extra TrimSpace for keys.
 			key = strings.TrimSpace(key)
 			remain = remain[end+1:]
 			subs, exists := c.find(key)
@@ -77,7 +79,7 @@ func (c *ConfigImpl) expandBuffer(buffer *bytes.Buffer, val string, deep uint) e
 	return nil
 }
 
-// Expand expand a variable, replace ${var} within value.
+// expand expand a variable, replace ${var} within value.
 func (c *ConfigImpl) expand(value string, deep uint) (string, error) {
 	// if no recursion allowed return value.
 	if 0 == c.def.maxRecursion {
@@ -106,6 +108,7 @@ func (c *ConfigImpl) expand(value string, deep uint) (string, error) {
 // Expand expand a variable, replace ${var} within value.
 func (c *ConfigImpl) Expand(value string) (string, error) {
 	if 0 == c.def.maxRecursion {
+		// No recursion allowed
 		return value, nil
 	} else {
 		return c.expand(value, 0)

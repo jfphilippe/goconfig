@@ -141,7 +141,7 @@ func TestExpand4(t *testing.T) {
 
 }
 
-// Check expand, with missing subst
+// Check expand, with subst in defaults
 func TestExpand5(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.AddDefault("none", "--")
@@ -163,7 +163,7 @@ func TestExpand5(t *testing.T) {
 
 }
 
-// Check expand, with  doted key, full name is prioritary
+// Check expand, with  doted key in defaults
 func TestExpand6(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.AddDefault("none", "--")
@@ -210,8 +210,7 @@ func TestExpand7(t *testing.T) {
 
 }
 
-
-// Check recursive expand, with  doted key, full name is prioritary
+// Check recursive expand, with  doted key
 func TestExpand8(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.AddDefault("test.none", "${key}")
@@ -234,7 +233,7 @@ func TestExpand8(t *testing.T) {
 
 }
 
-// Check recursive expand, with  doted key, full name is prioritary
+// Check recursive expand, with  doted key
 func TestExpand9(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.AddDefault("idx", "1")
@@ -256,7 +255,7 @@ func TestExpand9(t *testing.T) {
 	}
 }
 
-// Check recursive expand, with  doted key, full name is prioritary
+// Check recursive expand, with  doted key
 func TestExpand10(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.AddDefault("idx", "key")
@@ -274,6 +273,28 @@ func TestExpand10(t *testing.T) {
 		t.Error("Error found", err)
 	}
 	if "value" != str {
+		t.Error("Wrong value found :", str)
+	}
+}
+
+// Check recursive expand, with  doted key
+func TestExpand11(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.AddDefault("env", "dev")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"dev\": {\"db\": {\"pwd\": \"azerty\"}}, \"int\":{\"db\":{\"pwd\":\"qwerty\"}}, \"database\": { \"pwd\":\"${ ${env}.db.pwd }\" }}"
+	config, err := builder.LoadJson(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJson Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("database.pwd")
+	if nil != serr {
+		t.Error("Error found", err)
+	}
+	if "azerty" != str {
 		t.Error("Wrong value found :", str)
 	}
 }

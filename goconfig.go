@@ -10,10 +10,9 @@ import (
 	"time"
 )
 
-/*
-  define interface.
-*/
+//  define interface.
 type GoConfig interface {
+	// Extract a sub part of config.
 	GetConfig(key string) (GoConfig, error)
 	GetString(key string, deflt ...interface{}) (string, error)
 	GetInt(key string, defaultValue ...interface{}) (int64, error)
