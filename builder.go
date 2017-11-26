@@ -39,13 +39,18 @@ func (b *ConfigBuilder) SetIgnoreMissingFiles(value bool) {
 	b.ignoreMissingFiles = value
 }
 
+// SetIgnoreMissingFiles should builder ignore missing files or not
+func (b *ConfigBuilder) IgnoreMissingFiles() bool {
+	return b.ignoreMissingFiles
+}
+
 // GetConfig return current config
-func (b *ConfigBuilder) GetConfig() GoConfig {
+func (b *ConfigBuilder) Config() GoConfig {
 	return b.conf
 }
 
 // GetPrefix get current prefix
-func (b *ConfigBuilder) GetPrefix() string {
+func (b *ConfigBuilder) Prefix() string {
 	return b.conf.def.prefix
 }
 
@@ -59,6 +64,11 @@ func (b *ConfigBuilder) AddDefault(key string, value interface{}) {
 // set to 0 to disable expansion.
 func (b *ConfigBuilder) SetMaxRecursion(max uint) {
 	b.conf.def.SetMaxRecursion(max)
+}
+
+//  MaxRecursion return current value
+func (b *ConfigBuilder) MaxRecursion() uint {
+	return b.conf.def.maxRecursion
 }
 
 // LoadJson Load a map from a Json Stream

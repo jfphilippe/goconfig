@@ -19,8 +19,8 @@ func TestBuilder0(t *testing.T) {
 		t.Error("NewBuilder failed")
 	}
 	// Check prefix is to Upper !
-	if "CTX_" != builder.GetPrefix() {
-		t.Error("Bad prefix '", builder.GetPrefix(), "' CTX_ expected")
+	if "CTX_" != builder.Prefix() {
+		t.Error("Bad prefix '", builder.Prefix(), "' CTX_ expected")
 	}
 }
 

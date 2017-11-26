@@ -18,8 +18,11 @@ _, err := builder.LoadJsonFile("/etc/myapp/config.json")
 // existing values will NOT be updated.
 _,err := builder.LoadTxtFile("/etc/default/mayapp.txt")
 
+// Or
+// _,err := builder.LoadFiles("/etc/myapp/config.json","/etc/default/mayapp.txt")
+
 // Use it
-config := builder.GetConfig()
+config := builder.Config()
 
 name := config.GetString("name", "default name")
 num_proc := config.GetInt("proc.limit", 5)
@@ -34,7 +37,9 @@ db_url = config.GetString("database.url","")
 db_port = config.GetInt("database.port", 1234)
 ...
 ```
+
 ## Value Expansion
+
 ### Basic Expension
 GoConfig can expand values identified by ${ }.
 
@@ -99,3 +104,4 @@ key = value
 
 Where _value_ is any string that ends at the end of the current line. Multi lines values are not supported.
 _key_ is the "name" of the value. Nested names are separated with a '.', i.e. : database.name
+
