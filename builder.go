@@ -17,7 +17,8 @@ import (
 
 // Used to create Config Objects and parse config files.
 type ConfigBuilder struct {
-	conf *ConfigImpl
+	conf               *ConfigImpl
+	ignoreMissingFiles bool
 }
 
 //  Instantiate a new builder
@@ -28,9 +29,14 @@ func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
 	obj := make(map[string]interface{})
 	def := &ConfigDefault{prefix: prefix, values: defaults, maxRecursion: 5}
 	conf := &ConfigImpl{values: obj, parent: nil, def: def}
-	result := &ConfigBuilder{conf: conf}
+	result := &ConfigBuilder{conf: conf, ignoreMissingFiles: false}
 
 	return result
+}
+
+// SetIgnoreMissingFiles should builder ignore missing files or not
+func (b *ConfigBuilder) SetIgnoreMissingFiles(value bool) {
+	b.ignoreMissingFiles = value
 }
 
 // GetConfig return current config
@@ -105,7 +111,7 @@ func (b *ConfigBuilder) LoadTxt(r io.Reader) (GoConfig, error) {
 // LoadJsonFile load from a file
 func (b *ConfigBuilder) LoadJsonFile(filename string) (GoConfig, error) {
 	f, err := os.Open(filename)
-	if err != nil {
+	if nil != err {
 		return nil, err
 	}
 	defer f.Close()
@@ -116,7 +122,7 @@ func (b *ConfigBuilder) LoadJsonFile(filename string) (GoConfig, error) {
 // LoadTxtFile load from a file
 func (b *ConfigBuilder) LoadTxtFile(filename string) (GoConfig, error) {
 	f, err := os.Open(filename)
-	if err != nil {
+	if nil != err {
 		return nil, err
 	}
 	defer f.Close()
@@ -124,26 +130,16 @@ func (b *ConfigBuilder) LoadTxtFile(filename string) (GoConfig, error) {
 	return b.LoadTxt(r)
 }
 
-// LoadJsonFiles load a list of files
-func (b *ConfigBuilder) LoadJsonFiles(ignoremissing bool, filenames ...string) (GoConfig, error) {
-	for _, filename := range filenames {
-		_, err := b.LoadJsonFile(filename)
-		if nil != err && !(ignoremissing && os.IsNotExist(err)) {
-			return nil, err
-		}
-	}
-	return b.conf, nil
-}
-
 // LoadFiles load from files. Guess file type by reading extension.
 // When extension is .json parse it as a json file,
 // otherwise as a txt file
-func (b *ConfigBuilder) LoadFiles(ignoremissing bool, filenames ...string) (GoConfig, error) {
+func (b *ConfigBuilder) LoadFiles(filenames ...string) (GoConfig, error) {
+	// wich method to use to parse the file, default to Txt
 	parser := b.LoadTxt
 	for _, filename := range filenames {
 		f, err := os.Open(filename)
 		if nil != err {
-			if !(ignoremissing && os.IsNotExist(err)) {
+			if !(b.ignoreMissingFiles && os.IsNotExist(err)) {
 				return nil, err
 			}
 		} else {
@@ -153,10 +149,13 @@ func (b *ConfigBuilder) LoadFiles(ignoremissing bool, filenames ...string) (GoCo
 			} else {
 				parser = b.LoadTxt
 			}
-			r := bufio.NewReader(f)
 
+			// parse file
+			r := bufio.NewReader(f)
 			_, err = parser(r)
 			f.Close()
+
+			// if any error stop
 			if nil != err {
 				return nil, err
 			}

@@ -171,15 +171,47 @@ func TestBuilder4(t *testing.T) {
 
 }
 
-// Check Json parsing.
+// Check multiple file parsing.
 func TestBuilder5(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.SetMaxRecursion(5)
 	os.Setenv("CTX_ENV", "dev")
-	config, err := builder.LoadFiles(false, "testdata/config00.json", "testdata/config00.txt")
+	config, err := builder.LoadFiles("testdata/config00.json", "testdata/config00.txt")
 
 	if nil != err {
 		t.Error("LoadJson Failed", err)
+	}
+	str, serr := config.GetString("database.pwd")
+	if nil != serr {
+		t.Error("Key 'database.pwd' not found", serr)
+	}
+	if "development" != str {
+		t.Error("Wrong value found :", str)
+	}
+}
+
+// Check multiple file parsing with missing file
+func TestBuilder6(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(5)
+	os.Setenv("CTX_ENV", "dev")
+	_, err := builder.LoadFiles("testdata/config00.json", "testdata/nope00.txt", "testdata/config00.txt")
+
+	if nil == err {
+		t.Error("Load missing file succeded")
+	}
+}
+
+// Check multiple file parsing.
+func TestBuilder7(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(5)
+	builder.SetIgnoreMissingFiles(true)
+	os.Setenv("CTX_ENV", "dev")
+	config, err := builder.LoadFiles("testdata/config00.json", "testdata/nope00.txt", "testdata/config00.txt")
+
+	if nil != err {
+		t.Error("Load file  Failed", err)
 	}
 	str, serr := config.GetString("database.pwd")
 	if nil != serr {
