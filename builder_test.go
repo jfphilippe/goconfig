@@ -179,7 +179,7 @@ func TestBuilder5(t *testing.T) {
 	config, err := builder.LoadFiles("testdata/config00.json", "testdata/config00.txt")
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadFiles Failed", err)
 	}
 	str, serr := config.GetString("database.pwd")
 	if nil != serr {
@@ -207,7 +207,7 @@ func TestBuilder7(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.SetMaxRecursion(5)
 	builder.SetIgnoreMissingFiles(true)
-	os.Setenv("CTX_ENV", "dev")
+	os.Setenv("CTX_ENV", "int")
 	config, err := builder.LoadFiles("testdata/config00.json", "testdata/nope00.txt", "testdata/config00.txt")
 
 	if nil != err {
@@ -217,7 +217,7 @@ func TestBuilder7(t *testing.T) {
 	if nil != serr {
 		t.Error("Key 'database.pwd' not found", serr)
 	}
-	if "development" != str {
+	if "integration" != str {
 		t.Error("Wrong value found :", str)
 	}
 }
