@@ -1,6 +1,6 @@
 /*
- Copyright (c) 2017 Jean-François PHILIPPE
- Package goconfig read config files.
+Copyright (c) 2017 Jean-François PHILIPPE
+Package goconfig read config files.
 */
 
 package goconfig
