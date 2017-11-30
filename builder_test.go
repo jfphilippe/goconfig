@@ -24,31 +24,31 @@ func TestBuilder0(t *testing.T) {
 	}
 }
 
-// Check Json parsing.
+// Check JSON parsing.
 func TestBuilder1(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\"}"
-	_, err := builder.LoadJson(strings.NewReader(str))
+	_, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 }
 
-// Check Json parsing.
+// Check JSON parsing.
 func TestBuilder2(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\"}"
 	str2 := "{ \"nope\": false, \"key2\":\"value2\"}"
-	_, err := builder.LoadJson(strings.NewReader(str))
+	_, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
-	config, err2 := builder.LoadJson(strings.NewReader(str2))
+	config, err2 := builder.LoadJSON(strings.NewReader(str2))
 
 	if nil != err2 {
-		t.Error("LoadJson Failed", err2)
+		t.Error("LoadJSON Failed", err2)
 	}
 
 	// New key should not overide existing one
@@ -79,21 +79,21 @@ func TestBuilder2(t *testing.T) {
 	}
 }
 
-// Check Json parsing.
+// Check JSON parsing.
 // multiple parsing with sub-maps
 func TestBuilder3(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\",  \"sub\": { \"bool\": false }}"
 	str2 := "{ \"nope\": false, \"key2\":\"value2\",  \"sub\": { \"bool\": true, \"string\": \"test\" }}"
-	_, err := builder.LoadJson(strings.NewReader(str))
+	_, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
-	config, err2 := builder.LoadJson(strings.NewReader(str2))
+	config, err2 := builder.LoadJSON(strings.NewReader(str2))
 
 	if nil != err2 {
-		t.Error("LoadJson Failed", err2)
+		t.Error("LoadJSON Failed", err2)
 	}
 
 	// New key should not overide existing one
@@ -116,16 +116,16 @@ func TestBuilder3(t *testing.T) {
 
 }
 
-// Check Json parsing and Txt parsing
+// Check JSON parsing and Txt parsing
 // multiple parsing with sub-maps
 func TestBuilder4(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\",  \"sub\": { \"bool\": false }}"
 	str2 := "# test \nnope = false \nkey2=value2 \t \nsub.string = test \n\n"
-	_, err := builder.LoadJson(strings.NewReader(str))
+	_, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 	config, serr := builder.LoadTxt(strings.NewReader(str2))
 

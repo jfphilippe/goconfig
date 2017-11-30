@@ -110,9 +110,8 @@ func (c *ConfigImpl) Expand(value string) (string, error) {
 	if 0 == c.def.maxRecursion {
 		// No recursion allowed
 		return value, nil
-	} else {
-		return c.expand(value, 0)
 	}
+	return c.expand(value, 0)
 }
 
 // from https://gist.github.com/hvoecking/10772475  :
@@ -130,7 +129,7 @@ func (c *ConfigImpl) Expand(value string) (string, error) {
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 
-// Make a deep copy of an item, and expand any given string within.
+// Translate Make a deep copy of an item, and expand any given string within.
 func (c *ConfigImpl) Translate(obj interface{}) interface{} {
 	// Wrap the original in a reflect.Value
 	original := reflect.ValueOf(obj)
@@ -176,14 +175,14 @@ func (c *ConfigImpl) translateRecursive(copy, original reflect.Value) {
 
 		// If it is a struct we translate each field
 	case reflect.Struct:
-		for i := 0; i < original.NumField(); i += 1 {
+		for i := 0; i < original.NumField(); i++ {
 			c.translateRecursive(copy.Field(i), original.Field(i))
 		}
 
 		// If it is a slice we create a new slice and translate each element
 	case reflect.Slice:
 		copy.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
-		for i := 0; i < original.Len(); i += 1 {
+		for i := 0; i < original.Len(); i++ {
 			c.translateRecursive(copy.Index(i), original.Index(i))
 		}
 

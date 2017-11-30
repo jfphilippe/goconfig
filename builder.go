@@ -15,13 +15,13 @@ import (
 	"strings"
 )
 
-// Used to create Config Objects and parse config files.
+// ConfigBuilder Used to create Config Objects and parse config files.
 type ConfigBuilder struct {
 	conf               *ConfigImpl
 	ignoreMissingFiles bool
 }
 
-//  Instantiate a new builder
+// NewBuilder Instantiate a new builder
 //  prefix : prefix for env variable
 //  defaults : any defaults values may be nil.
 func NewBuilder(prefix string, defaults map[string]interface{}) *ConfigBuilder {
@@ -39,17 +39,17 @@ func (b *ConfigBuilder) SetIgnoreMissingFiles(value bool) {
 	b.ignoreMissingFiles = value
 }
 
-// SetIgnoreMissingFiles should builder ignore missing files or not
+// IgnoreMissingFiles check if builder ignore missing files or not
 func (b *ConfigBuilder) IgnoreMissingFiles() bool {
 	return b.ignoreMissingFiles
 }
 
-// GetConfig return current config
+// Config return current config
 func (b *ConfigBuilder) Config() GoConfig {
 	return b.conf
 }
 
-// GetPrefix get current prefix
+// Prefix get current prefix
 func (b *ConfigBuilder) Prefix() string {
 	return b.conf.def.prefix
 }
@@ -66,14 +66,14 @@ func (b *ConfigBuilder) SetMaxRecursion(max uint) {
 	b.conf.def.SetMaxRecursion(max)
 }
 
-//  MaxRecursion return current value
+// MaxRecursion return current value
 func (b *ConfigBuilder) MaxRecursion() uint {
 	return b.conf.def.maxRecursion
 }
 
-// LoadJson Load a map from a Json Stream
+// LoadJSON Load a map from a Json Stream
 // merge loaded value with previous one.
-func (b *ConfigBuilder) LoadJson(r io.Reader) (GoConfig, error) {
+func (b *ConfigBuilder) LoadJSON(r io.Reader) (GoConfig, error) {
 
 	jsonBytes, err := ioutil.ReadAll(r)
 	if err != nil {
@@ -118,8 +118,8 @@ func (b *ConfigBuilder) LoadTxt(r io.Reader) (GoConfig, error) {
 	return b.conf, nil
 }
 
-// LoadJsonFile load from a file
-func (b *ConfigBuilder) LoadJsonFile(filename string) (GoConfig, error) {
+// LoadJSONFile load from a file
+func (b *ConfigBuilder) LoadJSONFile(filename string) (GoConfig, error) {
 	f, err := os.Open(filename)
 	if nil != err {
 		return nil, err

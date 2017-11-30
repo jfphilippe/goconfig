@@ -18,14 +18,15 @@ import (
 	"time"
 )
 
-// Store commons values
+// ConfigDefault Store commons values
 type ConfigDefault struct {
 	prefix       string
 	values       map[string]interface{}
 	maxRecursion uint
 }
 
-// GetMaxRecursion
+// GetMaxRecursion return current max recursion.
+// Return 0 if disabled.
 func (c *ConfigDefault) GetMaxRecursion() uint {
 	return c.maxRecursion
 }
@@ -97,19 +98,18 @@ func (c *ConfigDefault) GetValue(key string) (interface{}, bool) {
 		result, found = os.LookupEnv(name)
 		if found {
 			return result, true
-		} else {
-			return nil, false
 		}
+		return nil, false
 	}
 
 	return result, found
 }
 
-// Add a default value
-func (b *ConfigDefault) AddDefault(key string, value interface{}) bool {
+// AddDefault Add a default value
+func (c *ConfigDefault) AddDefault(key string, value interface{}) bool {
 	if nil != value {
 		if nil == b.values {
-			b.values = make(map[string]interface{})
+			c.values = make(map[string]interface{})
 		}
 		keys := strings.Split(key, ".")
 		section := keys[:len(keys)-1]
@@ -126,16 +126,14 @@ func (b *ConfigDefault) AddDefault(key string, value interface{}) bool {
 	return false
 }
 
-/*
-implements interface.
-*/
+// ConfigImpl implements GoConfig interface
 type ConfigImpl struct {
 	values map[string]interface{}
 	parent *ConfigImpl
 	def    *ConfigDefault
 }
 
-// Create a config using a subtree of the currents values
+// GetConfig Create a config using a subtree of the currents values
 func (c *ConfigImpl) GetConfig(key string) (GoConfig, error) {
 	keys := strings.Split(key, ".")
 	values := subMap(&c.values, keys, false)
@@ -145,6 +143,7 @@ func (c *ConfigImpl) GetConfig(key string) (GoConfig, error) {
 	return &ConfigImpl{values: *values, parent: c, def: c.def}, nil
 }
 
+// SetValue store a value (value may be a map[string]interface{})
 func (c *ConfigImpl) SetValue(key string, value interface{}) bool {
 	if nil != value {
 		keys := strings.Split(key, ".")
@@ -175,7 +174,7 @@ func (c *ConfigImpl) SetValue(key string, value interface{}) bool {
 	return false
 }
 
-// Get a String. the key may be expressed with . to reach a nested item (aka key.sub.sub).
+// GetString  get a String. the key may be expressed with . to reach a nested item (aka key.sub.sub).
 // If nothing is found and a default value is given, will return the default value.
 func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error) {
 	// Get raw value
@@ -194,6 +193,7 @@ func (c *ConfigImpl) GetString(key string, deflt ...interface{}) (string, error)
 	return "", err
 }
 
+// GetBool return a value as a boolean
 func (c *ConfigImpl) GetBool(key string, defaultValue ...interface{}) (bool, error) {
 	// Get raw value
 	raw, err := c.getExpand(key, defaultValue...)

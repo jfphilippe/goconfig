@@ -1,6 +1,6 @@
 /*
- Copyright (c) 2017 Jean-François PHILIPPE
- Package goconfig read config files.
+Copyright (c) 2017 Jean-François PHILIPPE
+Package goconfig read config files.
 */
 
 package goconfig
@@ -14,10 +14,10 @@ import (
 func TestExpand0(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\", \"subst\": \"${key}\"}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -55,10 +55,10 @@ func TestExpand0(t *testing.T) {
 func TestExpand1(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${nope}\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -82,10 +82,10 @@ func TestExpand1(t *testing.T) {
 func TestExpand2(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ nope}\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -103,10 +103,10 @@ func TestExpand2(t *testing.T) {
 func TestExpand3(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ nope }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -124,10 +124,10 @@ func TestExpand3(t *testing.T) {
 func TestExpand4(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ none }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -146,10 +146,10 @@ func TestExpand5(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	builder.AddDefault("none", "--")
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ none }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -169,10 +169,10 @@ func TestExpand6(t *testing.T) {
 	builder.AddDefault("none", "--")
 	builder.AddDefault("test.none", "-**-")
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -193,10 +193,10 @@ func TestExpand7(t *testing.T) {
 	builder.AddDefault("test.none", "--")
 	builder.AddDefault("nope.none", "-**-")
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -216,10 +216,10 @@ func TestExpand8(t *testing.T) {
 	builder.AddDefault("test.none", "${key}")
 	builder.AddDefault("nope.none", "-**-")
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -239,10 +239,10 @@ func TestExpand9(t *testing.T) {
 	builder.AddDefault("idx", "1")
 	builder.AddDefault("nope.none", "-**-")
 	str := "{ \"nope\": true, \"key1\":\"value\", \"sub\": { \"key\":\"${ key${idx} }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -261,10 +261,10 @@ func TestExpand10(t *testing.T) {
 	builder.AddDefault("idx", "key")
 	builder.AddDefault("nope.none", "-**-")
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ ${idx} }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -283,10 +283,10 @@ func TestExpand11(t *testing.T) {
 	builder.AddDefault("env", "dev")
 	builder.AddDefault("nope.none", "-**-")
 	str := "{ \"dev\": {\"db\": {\"pwd\": \"azerty\"}}, \"int\":{\"db\":{\"pwd\":\"qwerty\"}}, \"database\": { \"pwd\":\"${ ${env}.db.pwd }\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string

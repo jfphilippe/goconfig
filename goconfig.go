@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-//  define interface.
+// GoConfig define interface.
 type GoConfig interface {
 	// Extract a sub part of config.
 	GetConfig(key string) (GoConfig, error)
@@ -25,7 +25,7 @@ type GoConfig interface {
 	Expand(value string) (string, error)
 }
 
-// Error for missing Key
+// ParseError Error for missing Key
 type ParseError struct {
 	line int
 	msg  string
@@ -36,7 +36,7 @@ func (m ParseError) Error() string {
 	return fmt.Sprintf("Parse Error line '%d' : '%s'", m.line, m.msg)
 }
 
-// Error for missing Key
+// MissingKeyError Error for missing Key
 type MissingKeyError struct {
 	key string
 }
@@ -46,7 +46,7 @@ func (m MissingKeyError) Error() string {
 	return fmt.Sprintf("Missing key : '%s'", m.key)
 }
 
-// Error while expanding ${xx} values (missing key)
+// ExpandKeyError Error while expanding ${xx} values (missing key)
 type ExpandKeyError struct {
 	key string
 }
@@ -56,7 +56,7 @@ func (m ExpandKeyError) Error() string {
 	return fmt.Sprintf("Missing key : '%s'", m.key)
 }
 
-// Error max recursion reached while expanding
+// ExpandRecursionError Error max recursion reached while expanding
 type ExpandRecursionError struct {
 	step uint
 }

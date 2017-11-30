@@ -17,10 +17,10 @@ import (
 func TestGetString0(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\"}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -64,10 +64,10 @@ func TestGetString0(t *testing.T) {
 func TestGetString1(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"value\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -102,10 +102,10 @@ func TestGetString1(t *testing.T) {
 func TestBool00(t *testing.T) {
 	builder := NewBuilder("Ctx_", nil)
 	str := "{ \"nope\": true, \"key\":\"false\", \"sub\": { \"key\":\"TRUE\" }}"
-	config, err := builder.LoadJson(strings.NewReader(str))
+	config, err := builder.LoadJSON(strings.NewReader(str))
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
@@ -220,7 +220,7 @@ func TestFind0(t *testing.T) {
 	config := ConfigImpl{values: obj, parent: nil, def: def}
 
 	if nil != err {
-		t.Error("LoadJson Failed", err)
+		t.Error("LoadJSON Failed", err)
 	}
 
 	// Search a key as string
