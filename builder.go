@@ -126,7 +126,7 @@ func (b *ConfigBuilder) LoadJSONFile(filename string) (GoConfig, error) {
 	}
 	defer f.Close()
 	r := bufio.NewReader(f)
-	return b.LoadJson(r)
+	return b.LoadJSON(r)
 }
 
 // LoadTxtFile load from a file
@@ -155,7 +155,7 @@ func (b *ConfigBuilder) LoadFiles(filenames ...string) (GoConfig, error) {
 		} else {
 			// Choose a parser
 			if ".json" == path.Ext(filename) {
-				parser = b.LoadJson
+				parser = b.LoadJSON
 			} else {
 				parser = b.LoadTxt
 			}

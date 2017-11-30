@@ -108,7 +108,7 @@ func (c *ConfigDefault) GetValue(key string) (interface{}, bool) {
 // AddDefault Add a default value
 func (c *ConfigDefault) AddDefault(key string, value interface{}) bool {
 	if nil != value {
-		if nil == b.values {
+		if nil == c.values {
 			c.values = make(map[string]interface{})
 		}
 		keys := strings.Split(key, ".")
@@ -116,7 +116,7 @@ func (c *ConfigDefault) AddDefault(key string, value interface{}) bool {
 		// name is last part
 		name := keys[len(keys)-1]
 
-		m := subMap(&b.values, section, true)
+		m := subMap(&c.values, section, true)
 		if nil != m {
 			smap := *m
 			smap[name] = value
