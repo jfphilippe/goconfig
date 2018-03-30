@@ -1,5 +1,7 @@
 # Package goconfig
+
 implements a configuration reader that can read valeurs form :
+
 - json files
 - txt files
 - env variables
@@ -41,22 +43,26 @@ db_port = config.GetInt("database.port", 1234)
 ## Value Expansion
 
 ### Basic Expension
-GoConfig can expand values identified by ${ }.
+
+GoConfig can expand values identified by `${ }`.
 
 Exemple :
-```
+
+```txt
 db.user = john
 
 database.url=${db.ser}@/dbname
 ```
 
-In the previous configuration, _database.url_ will be resolved as : john@/dbname
+In the previous configuration, _database.url_ will be resolved as : __john@/dbname__
 
 ### Nested Expension
+
 Expensions can be "nested".
 
 Exemple :
-```
+
+```txt
 dev.db.pwd=azerty
 int.db.pwd=qwerty
 
@@ -67,30 +73,34 @@ env = dev
 database.pwd = ${${env}.db.pwd}
 ```
 
-Here _database.pwd_ will be resolved as 'azerty'.
+Here _database.pwd_ will be resolved as __azerty__.
 
 ### Recursive expension
+
 Expension may be resolved recursively
 
 Exemple :
-```
+
+```txt
 file.root=/tmp/myapp
 file.conf.txt=${file.root}/conf.txt
 
 config.file=${file.conf.txt}
 ```
 
-_config.file_ should be translated into '/tmp/myapp/conf.txt'
+_config.file_ should be translated into __/tmp/myapp/conf.txt__
 
 ## Text File Format
+
 It's a basic file format where each value is writen in a line.
 
 ### Comments
-Comments are writen  with a # char at begining of the line (first non white space char). Comments end at the end of the line.
+
+Comments are writen  with a `#` char at begining of the line (first non white space char). Comments ends at the end of the line.
 
 Exemple :
 
-```
+```txt
 # this is a Comments
    # this is another one
 ```
@@ -98,10 +108,10 @@ Exemple :
 ### values
 
 Syntax :
-```
+
+```txt
 key = value
 ```
 
 Where _value_ is any string that ends at the end of the current line. Multi lines values are not supported.
-_key_ is the "name" of the value. Nested names are separated with a '.', i.e. : database.name
-
+_key_ is the "name" of the value. Nested names are separated with a `.` (dot), i.e. : `database.name`
