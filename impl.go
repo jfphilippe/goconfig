@@ -41,36 +41,6 @@ func (c *ConfigDefault) GetPrefix() string {
 	return c.prefix
 }
 
-func (c *ConfigDefault) getValue(keys []string) (interface{}, bool) {
-	if nil == c.values {
-		return nil, false
-	}
-	vals := c.values
-	section := keys[:len(keys)-1]
-	// name is last part
-	name := strings.TrimSpace(keys[len(keys)-1])
-	// Search for the required section
-	for _, k := range section {
-		k := strings.TrimSpace(k)
-		if k != "" { // Ignore empty keys !!
-			sub, ok := vals[k]
-			if ok {
-				// Check if can be casted
-				if entry, ok := sub.(map[string]interface{}); ok {
-					vals = entry
-				} else {
-					// Something eles, int, string , ...
-					// return nil as we are trying to find a map
-					return nil, false
-				}
-			}
-		}
-	}
-
-	val, ok := vals[name]
-	return val, ok
-}
-
 // GetValue try to get a value from defaults.
 // search first a value in default map, the into Env vars.
 func (c *ConfigDefault) GetValue(key string) (interface{}, bool) {

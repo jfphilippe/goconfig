@@ -1,0 +1,10 @@
+# test file config01
+
+# Syntax error
+prod.db.pwd
+
+int.db.pwd = integration
+dev.db.pwd = development
+
+# Others
+max_proc = 4

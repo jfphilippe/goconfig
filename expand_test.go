@@ -299,4 +299,76 @@ func TestExpand11(t *testing.T) {
 	}
 }
 
+// Check recursive expand, with  doted key
+func TestExpand12(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.AddDefault("test.none", "${key}")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none \" }}"
+	config, err := builder.LoadJSON(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJSON Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("sub.key")
+	if nil != serr {
+		t.Error("Error found", err)
+	}
+	if "${ test.none " != str {
+		t.Error("Wrong value found :", str)
+	}
+
+}
+
+// Check recursive expand, With Max recursion to 0
+func TestExpand13(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(0)
+	builder.AddDefault("test.none", "${key}")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"${ test.none }\" }}"
+	config, err := builder.LoadJSON(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJSON Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("sub.key")
+	if nil != serr {
+		t.Error("Error found", err)
+	}
+	// With max recursion to 0 , should return the value
+	if "${ test.none }" != str {
+		t.Error("Wrong value found :", str)
+	}
+
+}
+
+// Check recursive expand, with  dmex recursion to 1
+func TestExpand14(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(1)
+	builder.AddDefault("env", "dev")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"dev\": {\"db\": {\"pwd\": \"azerty\"}}, \"int\":{\"db\":{\"pwd\":\"qwerty\"}}, \"database\": { \"pwd\":\"${ ${env}.db.pwd }\" }}"
+	config, err := builder.LoadJSON(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJSON Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("database.pwd")
+	if nil == serr {
+		t.Error("Error should be found")
+	}
+	// Max recursion reached , should return the value !
+	if "${ ${env}.db.pwd }" != str {
+		t.Error("Wrong value found :", str)
+	}
+}
+
 // vi:set fileencoding=utf-8 tabstop=4 ai
