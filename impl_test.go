@@ -706,7 +706,7 @@ func TestGetInt00(t *testing.T) {
 
 }
 
-// Check GetInt
+// Check GetFloat
 func TestGetFloat00(t *testing.T) {
 	str := "{ \"nope\": true, \"key\":\"value\", \"sub\": { \"key\":\"value\" }}"
 

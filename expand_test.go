@@ -6,6 +6,8 @@ Package goconfig read config files.
 package goconfig
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"strings"
 	"testing"
 )
@@ -368,6 +370,112 @@ func TestExpand14(t *testing.T) {
 	// Max recursion reached , should return the value !
 	if "${ ${env}.db.pwd }" != str {
 		t.Error("Wrong value found :", str)
+	}
+}
+
+// Check recursive expand, with  dmex recursion to 1
+func TestExpand15(t *testing.T) {
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(5)
+	builder.AddDefault("env", "dev")
+	builder.AddDefault("nope.none", "-**-")
+	str := "{ \"dev\": {\"db\": {\"pwd\": \"a ${int.db.pwd}\"}}, \"int\":{\"db\":{\"pwd\":\"b ${ ${env}.db.pwd}\"}}, \"database\": { \"pwd\":\"${ ${env}.db.pwd }\" }}"
+	config, err := builder.LoadJSON(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJSON Failed", err)
+	}
+
+	// Search a key as string
+	str, serr := config.GetString("database.pwd")
+	if nil == serr {
+		t.Error("Error should be found")
+	}
+	// Max recursion reached , should return the value !
+	if "${ ${env}.db.pwd }" != str {
+		t.Error("Wrong value found :", str)
+	}
+}
+
+// Check GetFloat
+func TestTranslate16(t *testing.T) {
+	str := "{ \"string2\": \"${key}\", \"key\":\"value\", \"sub\": { \"key\":\"value2\" }}"
+	builder := NewBuilder("Ctx_", nil)
+	builder.SetMaxRecursion(5)
+	builder.AddDefault("env", "dev")
+	builder.AddDefault("nope.none", "-**-")
+	_, err := builder.LoadJSON(strings.NewReader(str))
+
+	if nil != err {
+		t.Error("LoadJSON Failed", err)
+	}
+
+	jsonBytes, err := ioutil.ReadAll(strings.NewReader(str))
+	if err != nil {
+		t.Error("ReadAll failed", err)
+	}
+	var obj map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &obj); err != nil {
+		t.Error("Unmarshall failed", err)
+	}
+	if nil != err {
+		t.Error("LoadJSON Failed", err)
+	}
+
+	config := builder.conf
+
+	str, err = config.GetString("string2")
+	if nil != err {
+		t.Error("GetString Failed", err)
+	}
+	if "value" != str {
+		t.Error("Wrong Value returned, expecting value :", str)
+	}
+
+	m := make(map[string]interface{})
+	m["key0"] = "test"
+	m["key1"] = "${nope}"
+
+	m2 := make(map[string]interface{})
+	m2["sub2"] = m
+	m2["root"] = 12
+	m2["string"] = "${key}"
+	m2["array"] = []string{"${sub.key}", "array"}
+
+	m3 := config.Translate(m2)
+	if nil == m3 {
+		t.Error("Translate should not have returned nil")
+	}
+
+	switch tsrc := m3.(type) {
+	case map[string]interface{}:
+		val := tsrc["string"]
+		if nil == val {
+			t.Error("m3[string] should not be nil")
+		}
+		switch tsrc2 := val.(type) {
+		case string:
+			if "value" != tsrc2 {
+				t.Error("Wrong value found :", val)
+			}
+		default:
+			t.Error("tsrc[string] should be a string")
+		}
+		// Test for array
+		val = tsrc["array"]
+		if nil == val {
+			t.Error("m3[array] should not be nil")
+		}
+		switch tsrc2 := val.(type) {
+		case []string:
+			if "value2" != tsrc2[0] {
+				t.Error("Wrong value found :", val)
+			}
+		default:
+			t.Error("tsrc[string] should be a string")
+		}
+	default:
+		t.Error("m3 should be a map")
 	}
 }
 
