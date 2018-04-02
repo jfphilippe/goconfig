@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 Jean-François PHILIPPE
+Copyright (c) Jean-François PHILIPPE 2017-2018
 Package goconfig implements a config object initialised from files and env variables.
 
 

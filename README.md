@@ -1,6 +1,6 @@
 # Package goconfig
 
-implements a configuration reader that can read valeurs form :
+implements a configuration reader that can read values form :
 
 - json files
 - txt files
